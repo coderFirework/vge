@@ -1,1 +1,1 @@
-# vge
+图层链接http://119.23.128.14:8080/geoserver/WebGIS/wms?service=WMS&version=1.1.0&request=GetMap&layers=WebGIS:nanhu&styles=&bbox=10.0979795455933,16.8011264801025,102.704139709473,75.4001693725586&width=768&height=485&srs=EPSG:4326&format=application/openlayers
