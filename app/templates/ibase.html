@@ -1,0 +1,100 @@
+<html>
+    <head>
+<title>南湖区违建GIS演示系统</title>
+{% block styles %}
+    <link href="../static/css/ibase.css" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <style>
+        .navbar-nav > li > a {
+            color: #ffffff !important;
+            font-family: 黑体;
+            font-size: 16px
+        }
+
+        .navbar-nav > .open > a {
+            background-color: transparent !important;
+        }
+    </style>
+{% endblock %}
+</head>
+<body>
+{% block body %}
+    <div id="rootContainer">
+        {% block navbar %}
+            <nav class="navbar navbar-default" style="height:100px;margin-bottom:0px;background:#2899da">
+                <div class="container-fluid" style="position:absolute;bottom:0px">
+                    <!-- Brand and toggle get grouped for better mobile display -->
+                    <div id="nav_icon" style="width:100px;height:100px;float:left;display:none">
+                        <img style="width:100px;height:100px" src="../static/images/fish.png">
+                    </div>
+                    <div id="nav_info" style="height:100px;float:left">
+                        <div id="nav_app_name" style="height:50px">
+                            <h3 style="color:white;padding-top:10px;margin:0px;margin-left:10px">南湖区违建GIS演示系统</h3>
+                        </div>
+                        <div id="nav_nav_item">
+                            <span id="line" style="position:absolute;height:3px;background:#ff9200;bottom:2px"></span>
+                            <!-- Collect the nav links, forms, and other content for toggling -->
+                            <div class="collapse navbar-collapse" style="padding-left:0px"
+                                 id="bs-example-navbar-collapse-1">
+                                <ul class="nav navbar-nav">
+                                    <li class="dropdown">
+                                        <a id="currentQueryCondition" href="#" class="dropdown-toggle nav_font"
+                                           data-toggle="dropdown" role="button" aria-haspopup="true"
+                                           aria-expanded="false"><img id="check1" src="../static/images/check-no.png" align="middle" class="check" />渔业信息查询 <span class="caret"></span></a>
+                                        <ul class="dropdown-menu">
+                                            <li><a id="clickQuery" href="#"><img id="check11" src="../static/images/check-no.png" align="middle" class="check"/>选择查询</a></li>
+                                            <li role="separator" class="divider"></li>
+                                            <li><a id="nameQuery" href="#"><img id="check12" src="../static/images/check-no.png" align="middle" class="check"/>鱼塘主体检索</a></li>
+                                            <li role="separator" class="divider"></li>
+                                            <li><a id="areaQuery" href="#"><img id="check13" src="../static/images/check-no.png" align="middle" class="check"/>鱼塘面积检索</a></li>
+                                            <!--  <li role="separator" class="divider"></li>
+                                             <li><a  id ="multiQuery" href="#">多重条件检索</a></li> -->
+                                        </ul>
+                                    </li>
+                                    <!--class="active"-->
+                                    <li><a id="createNewItem" class="nav_font" href="#"><img id="check2" src="../static/images/check-no.png" align="middle" class="check" />信息入库</a></li>
+                                    <li><a id="modifyItem" href="#"><img id="check3" src="../static/images/check-no.png" align="middle" class="check" />信息更新</a></li>
+                                    <li><a id="infoStatistics" href="#" class="dropdown-toggle nav_font"
+                                           data-toggle="dropdown" role="button" aria-haspopup="true"
+                                           aria-expanded="false"><img id="check4" src="../static/images/check-no.png" align="middle" class="check"/>信息统计<span class="caret"></span></a>
+                                        <ul class="dropdown-menu">
+                                            <li><a id="statistic_county" href="#"><img id="check14" src="../static/images/check-no.png" align="middle" class="check"/>全县渔业统计</a></li>
+                                            <li role="separator" class="divider"></li>
+                                            <li><a id="statistic_town" href="#"><img id="check15" src="../static/images/check-no.png" align="middle" class="check" />各镇渔业统计</a></li>
+                                        </ul>
+                                    </li>
+                                    <!--<li><a id="signOut" href="#" style="float:right;margin-right:20px">退出登录</a></li>-->
+                                    <!-- <li><a id="fishEnv" href="#">渔业环境监测</a></li> -->
+                                </ul>
+                            </div><!-- /.navbar-collapse -->
+                        </div>
+
+                    </div>
+
+
+                </div><!-- /.container-fluid -->
+                <span style="float:right;color:#FFFFFF;margin-top:5px;margin-right:15px">嘉兴博海</span>
+                
+                
+            </nav>
+        {% endblock %}
+        {% block content %}
+            <div id="rootContainer">
+                {% block icontent %}
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block scripts %}
+        <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+            <script src="http://apps.bdimg.com/libs/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+            <script src="../static/js/jsons.js"></script>
+            <script src="../static/js/echarts.js"></script>
+            <script src="../static/js/ol.js"></script>
+            <script src="../static/js/ibase.js"></script>
+            <script src="../static/js/statistics.js" charset="UTF-8"></script>
+        {% endblock %}
+    </div>
+{% endblock %}
+</body>
+</html>
