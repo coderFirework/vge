@@ -1,0 +1,46 @@
+<html>
+    <head>
+        <link href="../static/css/ol.css" rel="stylesheet" type="text/css"/>
+        <script src="../static/js/ol.js"></script>
+        <style>
+            html,body,.map{
+                margin: 0px;
+                padding: 0px;
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+       
+    </head>
+
+    <body>
+        <div id="map" class="map">
+
+        </div>
+        <script>
+            var view=  new ol.View({
+        center: ol.proj.fromLonLat([37.41, 8.82]),
+        zoom: 4
+      });
+                var map = new ol.Map({
+      target: 'map',
+      layers: [
+        new ol.layer.Tile({
+          source: new ol.source.OSM()
+        })
+      ],
+      view:view
+    });
+
+    var geolocation = new ol.Geolocation({
+  projection: view.getProjection(),
+  tracking: true
+});
+geolocation.once('change:position', function() {
+  view.setCenter(geolocation.getPosition());
+  view.setResolution(2.388657133911758);
+});
+
+          </script>
+    </body>
+</html>

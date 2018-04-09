@@ -11,9 +11,9 @@ import uuid
 def gate():
     return render_template('index.html',title='')
     #return render_template('login.html', title='')
-@authorityBp.route('/index',methods=['GET','POST'])
+@authorityBp.route('/mobile',methods=['GET','POST'])
 def index():
-    return render_template('index.html',title='')
+    return render_template('mobilemap.html',title='')
         
 
 @authorityBp.route('/login',methods=['GET','POST'])
