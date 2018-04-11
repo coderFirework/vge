@@ -4,6 +4,8 @@ from flask import json
 from flask import request
 import string,re
 from . import apiBp
+import psycopg2
+
 @apiBp.route('/query',methods=['GET','POST'])
 def query():
     data = json.loads(request.form.get('data'))
@@ -41,11 +43,39 @@ def getID():
 
 @apiBp.route('/appcreatefeature',methods=['GET','POST'])
 def createfeature():
-    data = json.loads(request.form.get('data'))
-    name = data['name']
-    address=data['address']
-    description=data['description']
-    geo=data['geo']
-    imagepath=data['imagepath']
+    name=request.form.get('name')
+    address=request.form.get('address')
+    geo=request.form.get('geo')
+    pic=request.form.get('pic')
+    description=request.form.get('description')
+    imageurl="image"
 
-    
+    connect = psycopg2.connect(database="webGIS", user="postgres", password="vgelab010", host="119.23.128.14",
+                              port="5432")
+    cur = connect.cursor()
+    try:
+        #sql = "SELECT pass FROM login where gid='"+username+"'"
+        #sql = "insert into nanhu (name,address,description,area,geom,imageurl) values ("+"'"+name+"',"+"'"+address+"',"+"'"+description+"',"+9.9+","+"'"+"ST_GeomFromText('"+geo+"'),"+"'"+imageurl+"'"+")"
+        geoData="ST_GeomFromText('"+geo+"')"
+        sql = "insert into nanhu (name,address,description,area,geom,imageurl) values ('%s','%s','%s',%.2f,%s,'%s')"%(name,address,description,9.9,geoData,imageurl)
+        print sql
+        cur.execute(sql)
+        
+        #rows = cur.fetchall()
+        #rows = rows[0]
+
+        connect.commit()
+        cur.close()
+        connect.close()
+    except Exception,e:
+        #该用户名在数据库中不存在
+        connect.commit()
+        cur.close()
+        connect.close()
+        a=1
+        print e.message
+        return '{"a":"%s"}' % a
+
+    return "ok"
+
+
