@@ -18,17 +18,43 @@
 
         </div>
         <script>
+            var center = [120.90398315429688, 30.89485595703125];
             var view=  new ol.View({
-        center: ol.proj.fromLonLat([37.41, 8.82]),
-        zoom: 4
+                projection: 'EPSG:4326',
+                center: center,
+        zoom: 12,
+        minZoom:11,
+        maxZoom:18
       });
-                var map = new ol.Map({
-      target: 'map',
-      layers: [
-        new ol.layer.Tile({
-          source: new ol.source.OSM()
+      var tian_di_tu_satellite_layer = new ol.layer.Tile({
+        title: "tiandituLayer",
+        source: new ol.source.XYZ({
+            url: 'http://t3.tianditu.com/DataServer?T=img_w&x={x}&y={y}&l={z}'
         })
-      ],
+    });
+        var source = new ol.source.Vector();
+var vector = new ol.layer.Vector({
+        source: source,
+        style: new ol.style.Style({
+          fill: new ol.style.Fill({
+            color: 'rgba(255, 255, 255, 0.2)'
+          }),
+          stroke: new ol.style.Stroke({
+            color: '#ffcc33',
+            width: 2
+          }),
+          image: new ol.style.Circle({
+            radius: 7,
+            fill: new ol.style.Fill({
+              color: '#ffcc33'
+            })
+          })
+        })
+});
+    var map = new ol.Map({
+    projection: 'EPSG:4326',
+      target: 'map',
+      layers: [tian_di_tu_satellite_layer,vector],
       view:view
     });
 
@@ -41,6 +67,26 @@ geolocation.once('change:position', function() {
   view.setResolution(2.388657133911758);
 });
 
+      
+      var draw, snap,newFeature; // global so we can remove them later
+
+      function addInteractions() {
+        draw = new ol.interaction.Draw({
+          source: source,
+          type: 'Polygon'
+        });
+        map.addInteraction(draw);
+        snap = new ol.interaction.Snap({source: source});
+        map.addInteraction(snap);
+        draw.on('drawend', function (e) {
+        var coordinate = e.feature.getGeometry().getCoordinates()[0];
+        var coordinateString = coordinate.toString();
+        master.sacrifice(coordinateString);
+        
+        });
+      };
+      
+      addInteractions();
           </script>
     </body>
 </html>

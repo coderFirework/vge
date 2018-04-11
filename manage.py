@@ -11,5 +11,5 @@ fishes = fishDataModel.Fish.query.all()
 print(fishes)
 '''
 if __name__=='__main__':
-    app.run("127.0.0.1",9990)
+    app.run("0.0.0.0",9990)
 

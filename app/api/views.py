@@ -38,3 +38,14 @@ def getID():
         #print id.group()
         return id.group()
     return "none"
+
+@apiBp.route('/appcreatefeature',methods=['GET','POST'])
+def createfeature():
+    data = json.loads(request.form.get('data'))
+    name = data['name']
+    address=data['address']
+    description=data['description']
+    geo=data['geo']
+    imagepath=data['imagepath']
+
+    
