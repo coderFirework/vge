@@ -139,8 +139,8 @@ function initialMape() {
      */
         //sources
     var wmsSource = new ol.source.TileWMS({
-            url: IPADDR + '/geoserver/jiashanFish/wms',
-            params: {'LAYERS': 'fish'}
+            url: IPADDR + '/geoserver/WebGIS/wms',
+            params: {'LAYERS': 'nanhu'}
         });
     clientVectorSource = new ol.source.Vector({wrapX: false});
 

@@ -14,6 +14,7 @@
     </head>
 
     <body>
+        <div id="debug" style="width: 300px;height: 80px;background-color: aliceblue;display: none;"></div>
         <div id="map" class="map">
 
         </div>
@@ -23,7 +24,7 @@
                 projection: 'EPSG:4326',
                 center: center,
         zoom: 12,
-        minZoom:11,
+        minZoom:5,
         maxZoom:18
       });
       var tian_di_tu_satellite_layer = new ol.layer.Tile({
@@ -31,6 +32,14 @@
         source: new ol.source.XYZ({
             url: 'http://t3.tianditu.com/DataServer?T=img_w&x={x}&y={y}&l={z}'
         })
+    });
+    var wmsSource = new ol.source.TileWMS({
+            url: 'http://119.23.128.14:8080' + '/geoserver/WebGIS/wms',
+            params: {'LAYERS': 'nanhu'}
+        });
+        var weijianLayer = new ol.layer.Tile({
+        title: "weijian",
+        source: wmsSource
     });
         var source = new ol.source.Vector();
 var vector = new ol.layer.Vector({
@@ -54,7 +63,7 @@ var vector = new ol.layer.Vector({
     var map = new ol.Map({
     projection: 'EPSG:4326',
       target: 'map',
-      layers: [tian_di_tu_satellite_layer,vector],
+      layers: [tian_di_tu_satellite_layer,weijianLayer,vector],
       view:view
     });
 
@@ -79,14 +88,63 @@ geolocation.once('change:position', function() {
         snap = new ol.interaction.Snap({source: source});
         map.addInteraction(snap);
         draw.on('drawend', function (e) {
+        newFeature =e;
         var coordinate = e.feature.getGeometry().getCoordinates()[0];
         var coordinateString = coordinate.toString();
-        master.sacrifice(coordinateString);
-        
+        var sphere = new ol.Sphere(6378137);
+        var area_m = Math.abs(sphere.geodesicArea(coordinate));
+        console.log("are is"+area_m);
+        master.sacrifice(coordinateString,area_m);
         });
       };
       
       addInteractions();
+      function reset(){
+          
+      }
+      var isLocate=0;
+      function locate(locate){
+          //locate(116.385076,40.006536)
+          var y=locate.split(",")
+          var p=[parseFloat(y[0]),parseFloat(y[1])];
+
+          document.getElementById("debug").innerHTML=locate;
+        if(isLocate==0){
+        var startMarker = new ol.Feature({
+            type: 'icon',
+            geometry: new ol.geom.Point(p)
+        });
+        var locatestyle = new ol.style.Style({
+          image: new ol.style.Icon({
+            anchor: [0.5, 1],
+            src: '../static/images/locate.png'
+          })
+        });
+        var markvectorLayer = new ol.layer.Vector({
+            source: new ol.source.Vector({
+            features: [startMarker]
+            }),
+            style: locatestyle
+        });
+        map.addLayer(markvectorLayer);
+        isLocate =1;
+    }else{
+        startMarker.getGeometry= new ol.geom.Point(p);
+    }
+
+        view.setCenter(p);
+        view.setZoom(15)
+
+        
+
+      }
+      function nanhu(){
+        //120.761295,30.744222
+        view.setCenter([120.761295,30.744222]);
+        view.setZoom(15)
+      }
+      //locate("116.385076,40.006536")
+      //nanhu();
           </script>
     </body>
 </html>

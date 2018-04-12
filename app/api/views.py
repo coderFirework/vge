@@ -5,6 +5,9 @@ from flask import request
 import string,re
 from . import apiBp
 import psycopg2
+import os
+import base64
+import time
 
 @apiBp.route('/query',methods=['GET','POST'])
 def query():
@@ -41,6 +44,15 @@ def getID():
         return id.group()
     return "none"
 
+
+def getPath():
+    root=os.getcwd()
+    imagePath=os.path.join(root,'app\static\images\upload')
+    t=time.time()
+    imagename=str(int(t))+'.jpg'
+    fullpath=os.path.join(imagePath,imagename)
+    return (imagename,fullpath)
+
 @apiBp.route('/appcreatefeature',methods=['GET','POST'])
 def createfeature():
     name=request.form.get('name')
@@ -49,26 +61,28 @@ def createfeature():
     pic=request.form.get('pic')
     description=request.form.get('description')
     imageurl="image"
+    area=request.form.get('area')
+    farea = float(area)
+
+    imgdata=base64.b64decode(pic)
+    imagename,path=getPath()
+    imageurl=imagename
+    file=open(path,'wb')
+    file.write(imgdata)
+    file.close()
 
     connect = psycopg2.connect(database="webGIS", user="postgres", password="vgelab010", host="119.23.128.14",
                               port="5432")
     cur = connect.cursor()
     try:
-        #sql = "SELECT pass FROM login where gid='"+username+"'"
-        #sql = "insert into nanhu (name,address,description,area,geom,imageurl) values ("+"'"+name+"',"+"'"+address+"',"+"'"+description+"',"+9.9+","+"'"+"ST_GeomFromText('"+geo+"'),"+"'"+imageurl+"'"+")"
         geoData="ST_GeomFromText('"+geo+"')"
-        sql = "insert into nanhu (name,address,description,area,geom,imageurl) values ('%s','%s','%s',%.2f,%s,'%s')"%(name,address,description,9.9,geoData,imageurl)
+        sql = "insert into nanhu (name,address,description,area,geom,imageurl) values ('%s','%s','%s',%.2f,%s,'%s')"%(name,address,description,farea,geoData,imageurl)
         print sql
         cur.execute(sql)
-        
-        #rows = cur.fetchall()
-        #rows = rows[0]
-
         connect.commit()
         cur.close()
         connect.close()
     except Exception,e:
-        #该用户名在数据库中不存在
         connect.commit()
         cur.close()
         connect.close()
