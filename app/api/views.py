@@ -17,11 +17,12 @@ def query():
     #wp = urllib.request.urlopen(ss)  # 打开连接
     wp = urllib.urlopen(ss)
     content = wp.read()  # 获取页面内容
-    content = content.replace('ssrmc','所属人名称')
-    content = content.replace('yzmj','养殖面积')
-    content = content.replace('yzpz','养殖品种')
-    content = content.replace('lxhf','类型划分')
-    content = content.replace('fish','')
+    content = content.replace('name','名称')
+    content = content.replace('area','面积')
+    content = content.replace('address','地址')
+    content = content.replace('description','描述')
+    content = content.replace('imageurl', '照片')
+    content = content.replace('nanhu','')
     #print content
     return content
 

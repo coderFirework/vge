@@ -7,7 +7,7 @@ db = SQLAlchemy()
 def create_app():
     app=Flask(__name__)
     #app.debug=True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:vgelab010@119.23.128.14:5432/jiashanFish'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:vgelab010@119.23.128.14:5432/webGIS'
     app.app_context().push()
     db.init_app(app)
     #initial db first,then load Db module

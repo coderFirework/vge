@@ -19,13 +19,14 @@
 
         </div>
         <script>
-            var center = [120.90398315429688, 30.89485595703125];
+            //var center = [120.90398315429688, 30.89485595703125];
+            var center = [120.786183145,30.6725723478];
             var view=  new ol.View({
                 projection: 'EPSG:4326',
                 center: center,
-        zoom: 12,
+        zoom: 16,
         minZoom:5,
-        maxZoom:18
+        maxZoom:21
       });
       var tian_di_tu_satellite_layer = new ol.layer.Tile({
         title: "tiandituLayer",
@@ -41,6 +42,7 @@
         title: "weijian",
         source: wmsSource
     });
+
         var source = new ol.source.Vector();
 var vector = new ol.layer.Vector({
         source: source,

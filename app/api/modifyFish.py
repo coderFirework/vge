@@ -14,15 +14,16 @@ def modify():
     id = data['gid']
     name = data['name']
     area = data['area']
-    pinzhong = data['pinzhong']
-    type = data['type']
+    address = data['address']
+    description = data['description']
+    # type = data['type']
     # print("name is:"+name)
 
     fish = fishDataModel.Fish.query.filter_by(gid=id).first()
-    fish.ssrmc = name
-    fish.yzmj = area
-    fish.yzpz = pinzhong
-    fish.lxhf = type
+    fish.name = name
+    fish.area = area
+    fish.address = address
+    fish.description = description
     fishDataModel.db.session.commit()
     return ('success')
 
@@ -53,19 +54,19 @@ def deleteRowByID():
 def initialssxz():
     data = json.loads(request.form.get('data'))
     id = data['gid']
-    ssxz = data['ssxz']
+    address = data['address']
 
     fish = fishDataModel.Fish.query.filter_by(gid=id).first()
-    fish.ssxz = ssxz
+    fish.address = address
     fishDataModel.db.session.commit()
-    return (fish.ssxz)
+    return (fish.address)
 
 
 @apiBp.route('/getAreaInfo', methods=['GET', 'POST'])
 def getAreaInfo():
     data = json.loads(request.form.get('data'))
-    xz = data["ssxz"]
-    type = data["lxhf"]
+    xz = data["address"]
+    type = data["description"]
     amin = data["min"]
     amax = data["max"]
     print amax;
@@ -73,22 +74,22 @@ def getAreaInfo():
         amax = '10000'
     print amax;
     # 数据库连接参数
-    connect = psycopg2.connect(database="jiashanFish", user="postgres", password="vgelab010", host="119.23.128.14",
+    connect = psycopg2.connect(database="webGIS", user="postgres", password="vgelab010", host="119.23.128.14",
                                port="5432")
     cur = connect.cursor()
     if amin != "0" or amax != "最大值" and amin != "" and amax != "":
         if type == "all":
-            sql = "SELECT sum(yzmj) FROM fish WHERE ssxz=" + "'" + xz + "'" + "and yzmj>=" + amin + " and yzmj<=" + amax
+            sql = "SELECT sum(area) FROM webGIS WHERE address=" + "'" + xz + "'" + "and area>=" + amin + " and area<=" + amax
             # print sql
         else:
-            sql = "SELECT sum(yzmj) FROM fish WHERE ssxz=" + "'" + xz + "'" + " and lxhf=" + "'" + type + "'" + "and yzmj>=" + amin + " and yzmj<=" + amax
+            sql = "SELECT sum(area) FROM webGIS WHERE address=" + "'" + xz + "'" + " and description=" + "'" + type + "'" + "and area>=" + amin + " and area<=" + amax
             # print sql
     else:
         if type == "all":
-            sql = "SELECT sum(yzmj) FROM fish WHERE ssxz=" + "'" + xz + "'"
+            sql = "SELECT sum(area) FROM webGIS WHERE address=" + "'" + xz + "'"
             # print sql
         else:
-            sql = "SELECT sum(yzmj) FROM fish WHERE ssxz=" + "'" + xz + "'" + " and lxhf=" + "'" + type + "'"
+            sql = "SELECT sum(area) FROM webGIS WHERE address=" + "'" + xz + "'" + " and description=" + "'" + type + "'"
             # print sql
     cur.execute(sql)
     rows = cur.fetchall()
@@ -104,31 +105,32 @@ def getAreaInfo():
 
 @apiBp.route('/getAreaByName', methods=['GET', 'POST'])
 def getAreaByName():
-    namearr = ["姚庄镇", "陶庄镇", "罗星街道", "西塘镇", "惠民街道", "大云镇", "天凝镇", "干窑镇", "魏塘街道"]
+    addressarr = ["中国"]
     # data = json.loads(request.form.get('data'))
     # xz = data["ssxz"]
     # 数据库连接参数
-    connect = psycopg2.connect(database="jiashanFish", user="postgres", password="vgelab010", host="119.23.128.14",
+    connect = psycopg2.connect(database="webGIS", user="postgres", password="vgelab010", host="119.23.128.14",
                                port="5432")
     cur = connect.cursor()
     allinfo = []
-    for k in namearr:
-        sql = "SELECT lxhf,sum(yzmj) FROM fish WHERE ssxz=" + "'" + k + "'" + " group by lxhf"
+    for k in addressarr:
+        sql = "SELECT name,sum(area) FROM nanhu WHERE address=" + "'" + k + "'" + " group by description"
         cur.execute(sql)
         rows = cur.fetchall()
         arr = [0, 0, 0, 0, 0]
         for j in rows:
             type = str(j[0]).decode("utf-8")
             mj = j[1]
-            if type == "围养".decode("utf-8"):
+            if type == "违建".decode("utf-8"):
                 arr[1] = mj
-            elif type == "鱼塘".decode("utf-8"):
-                arr[2] = mj
-            elif type == "外荡".decode("utf-8"):
-                arr[3] = mj
-            elif type == "未归类".decode("utf-8"):
-                arr[4] = mj
-        arr[0] = arr[1]+ arr[2] + arr[3] + arr[4]
+            # elif type == "鱼塘".decode("utf-8"):
+            #     arr[2] = mj
+            # elif type == "外荡".decode("utf-8"):
+            #     arr[3] = mj
+            # elif type == "未归类".decode("utf-8"):
+            #     arr[4] = mj
+        # arr[0] = arr[1]+ arr[2] + arr[3] + arr[4]
+        arr[0] = arr[1]
         allinfo.append(arr)
     print allinfo
     connect.commit()
@@ -139,31 +141,33 @@ def getAreaByName():
 
 @apiBp.route('/getAllArea', methods=['GET', 'POST'])
 def getAllArea():
-    connect = psycopg2.connect(database="jiashanFish", user="postgres", password="vgelab010", host="119.23.128.14",
+    connect = psycopg2.connect(database="webGIS", user="postgres", password="vgelab010", host="119.23.128.14",
                                port="5432")
     cur = connect.cursor()
-    sql = "SELECT lxhf,sum(yzmj) FROM fish  group by lxhf"
+    sql = "SELECT sum(area),count(*) FROM nanhu"
     cur.execute(sql)
     rows = cur.fetchall()
     arr = [0, 0, 0, 0, 0]
+    print rows
     for i in rows:
-        type = str(i[0]).decode("utf-8")
-        mj = i[1]
-        if type == "围养".decode("utf-8"):
-            arr[1] = mj
-        elif type == "鱼塘".decode("utf-8"):
-            arr[2] = mj
-        elif type == "外荡".decode("utf-8"):
-            arr[3] = mj
-        elif type == "未归类".decode("utf-8"):
-            arr[4] = mj
-    arr[0] = arr[1] + arr[2] + arr[3] + arr[4]
-    print arr[0]
+        # type = str(i[0]).decode("utf-8")
+        # print type
+        mj = i[0]
+        arr[0] = mj
+        arr[1] = float(i[1])
+        # if type == "违建".decode("utf-8"):
+        #     arr[1] = mj
+        #     # print "arr[1]",arr[1]
+        # else:
+        #     arr[2] = mj + arr[2]
+            # print "arr[2]",arr[2]
+
+    # arr[0] = arr[1] + arr[2]
     connect.commit()
     cur.close()
     connect.close()
-    return str(arr).decode("utf-8")
-
+    # return str(arr).decode("utf-8")
+    return str(arr)
 # 登陆
 #
   #  data = json.loads(request.form.get('data'))

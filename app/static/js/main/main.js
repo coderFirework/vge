@@ -120,7 +120,7 @@ function click2Query(type) {
 var map = null;
 var layers;
 var overlay;
-var center = [120.90398315429688, 30.89485595703125];
+var center = [120.8106659916, 30.7506028097];
 var container = document.getElementById('popup');
 var content = document.getElementById('popup-content');
 var closer = document.getElementById('popup-closer');
@@ -151,14 +151,14 @@ function initialMape() {
             url: 'http://t3.tianditu.com/DataServer?T=img_w&x={x}&y={y}&l={z}'
         })
     });
-    var boundarySource = new ol.source.TileWMS({
-        url: IPADDR + '/geoserver/jiashanFish/wms',
-        params: {'LAYERS': 'xiangzhen'}
-    });
-    var boundaryLayer = new ol.layer.Tile({
-        title: "boundaryLayer",
-        source: boundarySource
-    });
+    // var boundarySource = new ol.source.TileWMS({
+    //     url: IPADDR + '/geoserver/WebGIS/wms',
+    //     params: {'LAYERS': 'xiangzhen'}
+    // });
+    // var boundaryLayer = new ol.layer.Tile({
+    //     title: "boundaryLayer",
+    //     source: boundarySource
+    // });
     var fishLayer = new ol.layer.Tile({
         title: "fishwmsLayer",
         source: wmsSource
@@ -168,27 +168,28 @@ function initialMape() {
         source: clientVectorSource,
         style: normalStyle
     });
-    //乡镇边界WFS服务
-    xiangzhenSource = new ol.source.Vector({
-        format: new ol.format.GeoJSON(),
-        url: function (extent) {
-            return 'http://119.23.128.14:8080/geoserver/jiashanFish/wfs?service=WFS&' +
-                'version=1.1.0&request=GetFeature&typename=jiashanFish:xiangzhen&' +
-                'outputFormat=application/json&srsname=EPSG:4326&' +
-                'bbox=' + extent.join(',') + ',EPSG:4326';
-        },
-        strategy: ol.loadingstrategy.bbox
-    });
-    xiangzhenVec = new ol.layer.Vector({
-        source: xiangzhenSource,
-        style: new ol.style.Style({
-            stroke: new ol.style.Stroke({
-                color: 'rgba(255, 255,255, 0.1)',
-                width: 0
-            })
-        })
-    });
-    layers = [tian_di_tu_satellite_layer, boundaryLayer, fishLayer, clientVectorLayer];
+    // //乡镇边界WFS服务
+    // xiangzhenSource = new ol.source.Vector({
+    //     format: new ol.format.GeoJSON(),
+    //     url: function (extent) {
+    //         return 'http://119.23.128.14:8080/geoserver/jiashanFish/wfs?service=WFS&' +
+    //             'version=1.1.0&request=GetFeature&typename=jiashanFish:xiangzhen&' +
+    //             'outputFormat=application/json&srsname=EPSG:4326&' +
+    //             'bbox=' + extent.join(',') + ',EPSG:4326';
+    //     },
+    //     strategy: ol.loadingstrategy.bbox
+    // });
+    // xiangzhenVec = new ol.layer.Vector({
+    //     source: xiangzhenSource,
+    //     style: new ol.style.Style({
+    //         stroke: new ol.style.Stroke({
+    //             color: 'rgba(255, 255,255, 0.1)',
+    //             width: 0
+    //         })
+    //     })
+    // });
+    // layers = [tian_di_tu_satellite_layer, boundaryLayer, fishLayer, clientVectorLayer];
+    layers = [tian_di_tu_satellite_layer, fishLayer, clientVectorLayer];
      var views = new ol.View({
         projection: 'EPSG:4326',
         center: center,
@@ -375,9 +376,9 @@ function LayerControllor(action) {
 
 var formatEditWFS = new ol.format.WFS();
 var formatEditGML = new ol.format.GML({
-    featureNS: 'http://www.vge.org',
-    featurePrefix: 'jiashanFish',
-    featureType: ['fish'],
+    featureNS: 'http://www.vge.org/webgis',
+    featurePrefix: 'WebGIS',
+    featureType: ['nanhu'],
     //srsName: 'EPSG:4326'
 });
 function addEditLayer() {
@@ -469,11 +470,11 @@ function editTransaction(mode, f, formatGML) {
     }
     var payload = xs.serializeToString(node);
     console.log("payload is:" + payload);
-    $.ajax(IPADDR + '/geoserver/jiashanFish/wfs', {
+    $.ajax(IPADDR + '/geoserver/WebGIS/wfs', {
         type: 'POST',
         dataType: 'xml',
         //typename: 'fish',
-        typename: 'fish',
+        typename: 'nanhu',
         processData: false,
         contentType: 'text/xml',
         data: payload
@@ -481,7 +482,7 @@ function editTransaction(mode, f, formatGML) {
         //刷新WMS
         console.log(data);
         clientVectorSource.clear();
-        layers[2].getSource().updateParams({"time": Date.now()});
+        layers[1].getSource().updateParams({"time": Date.now()});
         if (mode == "delete") {
             toast("删除成功", 2000);
         } else if (mode = "update") {
@@ -530,28 +531,29 @@ function editProperty() {
     $("#propertyTable").html("");
 
     var property = editFeature.getProperties();
-    var name = property.ssrmc;
+    var name = property.name;
     //var gid = property.gid;
     var gid = editFeature.getId();
-    gid = gid.substr(5, gid.length)
-    var mianji = property.yzmj;
-    var pinzhong = property.yzpz;
-    var leixing = property.lxhf;
+    gid = gid.substr(6, gid.length)
+    var area = property.area;
+    var address = property.address;
+    var description = property.description;
     var tableHTML = '<tr><td><label for=\"nameInput\">编号</label></td><td><input type=\"text\" class=\"form-control\" id=\"editFeatureID\" placeholder=\"\" disabled="true"　readOnly="true" value="' + gid + '"></td></tr>';
-    tableHTML += ('<tr><td><label for=\"nameInput\">养殖户姓名</label></td><td><input type=\"text\" class=\"form-control\" id=\"editNameInput\" placeholder=\"\"value="' + name + '"></td></tr>');
-    tableHTML += ('<tr><td><label for=\"nameInput\">养殖面积</label></td><td><input type=\"text\" class=\"form-control\" id=\"editAreaInput\" placeholder=\"\"disabled="true"　readOnly="true" value="' + mianji + '"></td></tr>');
-    tableHTML += ('<tr><td><label for=\"nameInput\">养殖品种</label></td><td><input type=\"text\" class=\"form-control\" id=\"editPinzhongInput\" placeholder=\"\"value="' + pinzhong + '"></td></tr>');
-    tableHTML += ('<tr><td><label for=\"nameInput\">类型划分</label></td><td><select class=\"form-control\" id=\"editTypeInput\"><option value="围养">围养</option><option value="外荡">外荡</option><option value="鱼塘">鱼塘</option><option value="未归类">未归类</option></select></td></tr>');
+    tableHTML += ('<tr><td><label for=\"nameInput\">名称</label></td><td><input type=\"text\" class=\"form-control\" id=\"editNameInput\" placeholder=\"\"value="' + name + '"></td></tr>');
+    tableHTML += ('<tr><td><label for=\"nameInput\">面积</label></td><td><input type=\"text\" class=\"form-control\" id=\"editAreaInput\" placeholder=\"\"disabled="true"　readOnly="true" value="' + area + '"></td></tr>');
+    tableHTML += ('<tr><td><label for=\"nameInput\">地址</label></td><td><input type=\"text\" class=\"form-control\" id=\"editPinzhongInput\" placeholder=\"\"value="' + address + '"></td></tr>');
+    // tableHTML += ('<tr><td><label for=\"nameInput\">类型</label></td><td><select class=\"form-control\" id=\"editTypeInput\"><option value="违建">违建</option><option value="未归类">未归类</option></select></td></tr>');
+    tableHTML += ('<tr><td><label for=\"nameInput\">描述</label></td><td><input type=\"text\" class=\"form-control\" id=\"editTypeInput\" placeholder=\"\"value="' + description + '"></td></tr>');
     tableHTML += ('<tr><td colspan="2"><button id="updateFishBt" type="submit" class="btn btn-default" style="float:right" onclick="updateEdit()">确定</button></td></tr>');
     $("#propertyTable").html(tableHTML);
     //$('#editTypeInput').attr('value',leixing);
-    $("#editTypeInput ").val(leixing);
+    $("#editTypeInput ").val(description);
 }
 function ssxz() {
     var mdata = {
         data: JSON.stringify({
             "gid": 1,
-            "ssxz": '临朐县',
+            "address": '日本',
         })
     }
     $.ajax({
@@ -567,19 +569,19 @@ function ssxz() {
     });
 }
 function updateEdit() {
-    var type=$("#editTypeInput option:selected").val();
+    var description=$("#editTypeInput").val();
     var gid = $("#editFeatureID").val();
     var name = $("#editNameInput").val();
     var area = $("#editAreaInput").val();
-    var pinzhong = $("#editPinzhongInput").val();
+    var address = $("#editPinzhongInput").val();
     //var type = $("#editTypeInput").val();
     var mdata = {
         data: JSON.stringify({
             "gid": gid,
             "name": name,
             "area": area,
-            "pinzhong": pinzhong,
-            "type": type
+            "address": address,
+            "description": description
         })
     }
     $.ajax({
@@ -607,9 +609,9 @@ function updateEdit() {
 }
 var formatWFS = new ol.format.WFS();
     var formatGML = new ol.format.GML({
-        featureNS: 'http://www.vge.org',
-        featurePrefix: 'jiashanFish',
-        featureType: ['fish'],
+        featureNS: 'http://www.vge.org/webgis',
+        featurePrefix: 'WebGIS',
+        featureType: ['nanhu'],
         //srsName: 'EPSG:4326'
     });
 ///////////////
@@ -680,11 +682,11 @@ function addCreateLayer() {
         var payload = xs.serializeToString(node);
         console.log("payload is:" + payload);
 
-        $.ajax(IPADDR + '/geoserver/jiashanFish/wfs', {
+        $.ajax(IPADDR + '/geoserver/WebGIS/wfs', {
             type: 'POST',
             dataType: 'xml',
             //typename: 'fish',
-            typename: 'fish',
+            typename: 'nanhu',
             processData: false,
             contentType: 'text/xml',
             data: payload
@@ -700,7 +702,8 @@ function addCreateLayer() {
             //sourceAddWFS.clear();
             var coordinates = f.getGeometry().getCoordinates()[0];
             var sphere = new ol.Sphere(6378137);
-            var area_m = sphere.geodesicArea(coordinates[0]);
+            // var area_m = sphere.geodesicArea(coordinates[0]);
+            var area_m = sphere.geodesicArea(coordinates);
             var area_666 = Math.abs(area_m / 666.66);
             area_666 = area_666.toFixed(2);
             console.log("area is:" + area_666);
@@ -719,8 +722,8 @@ function addCreateLayer() {
             "gid": gid,
             "name": 'default',
             "area": area,
-            "pinzhong": 'default',
-            "type": '未归类'
+            "address": 'default',
+            "description": 'default'
         })
     }
     $.ajax({
@@ -733,7 +736,7 @@ function addCreateLayer() {
              addNewFish(gid, area);
             
             //sourceAddWFS.clear();
-            layers[2].getSource().updateParams({"time": Date.now()});
+            layers[1].getSource().updateParams({"time": Date.now()});
             //hideModal();
 
         },
@@ -753,7 +756,7 @@ function addCreateLayer() {
      });
      */
     draw = new ol.interaction.Draw({
-        type: 'MultiPolygon',
+        type: 'Polygon',  //multipolygon修改为polygon，需要与geoserver一致
         geometryName: 'geom',
         source: clientVectorSource
     });
@@ -784,19 +787,26 @@ function querProperty(content, qurl, coordinate) {
         data: mdata,
         success: function (data) {
             content.html(data);
-            //console.log(data);
+            console.log(data);
             ///*
             var table = $(".featureInfo")[0];
 
             var ths = table.getElementsByTagName("th");
             var l = ths.length;
-            ths[l - 1].remove();
+            // ths[l - 1].remove();
             ths[1].remove();
             ths[0].remove();
 
             var tds = table.getElementsByTagName("td");
             l = tds.length;
-            tds[l - 1].remove();
+            // tds[l - 1].remove();
+            tds[l-1].setAttribute("id", "tbimgurl");
+            console.log($('#tbimgurl').text());
+            var img = document.createElement("img");
+            img.setAttribute("id", "floatImage");
+            img.setAttribute("src", './static/images/upload/'+ $('#tbimgurl').text());
+            $('#tbimgurl').text('');
+            tds[l - 1].appendChild(img);
             tds[1].remove();
             tds[0].remove();
             //*/
@@ -1017,16 +1027,16 @@ function queryByMutiCondition() {
                 //有类型查询条件
                 fc = f.and(
                     //name area type
-                    f.equalTo("ssrmc", nameVal),
-                    f.between("yzmj", minVal, maxVal),
-                    f.equalTo("lxhf", leixingVal)
+                    f.equalTo("name", nameVal),
+                    f.between("area", minVal, maxVal),
+                    f.equalTo("descrition", leixingVal)
                 )
             } else {
                 //无类型查询条件
                 fc = f.and(
                     //name arear
-                    f.equalTo("ssrmc", nameVal),
-                    f.between("yzmj", minVal, maxVal)
+                    f.equalTo("name", nameVal),
+                    f.between("area", minVal, maxVal)
                 )
             }
         } else {
@@ -1034,12 +1044,12 @@ function queryByMutiCondition() {
             if (leixingVal != "") {
                 //有类型查询条件
                 fc = f.and(
-                    f.equalTo("ssrmc", nameVal),
-                    f.equalTo("lxhf", leixingVal)
+                    f.equalTo("name", nameVal),
+                    f.equalTo("description", leixingVal)
                 )
             } else {
                 //无类型查询条件
-                fc = f.equalTo("ssrmc", nameVal);
+                fc = f.equalTo("name", nameVal);
             }
         }
     } else {
@@ -1049,18 +1059,18 @@ function queryByMutiCondition() {
             if (leixingVal != "") {
                 //有类型查询条件
                 fc = f.and(
-                    f.between("yzmj", minVal, maxVal),
-                    f.equalTo("lxhf", leixingVal)
+                    f.between("area", minVal, maxVal),
+                    f.equalTo("description", leixingVal)
                 )
             } else {
                 //无类型查询条件
-                fc = f.between("yzmj", minVal, maxVal);
+                fc = f.between("area", minVal, maxVal);
             }
         } else {
             //无面积查询条件
             if (leixingVal != "") {
                 //有类型查询条件
-                fc = f.equalTo("lxhf", leixingVal);
+                fc = f.equalTo("description", leixingVal);
             } else {
                 //无类型查询条件
                 alert("至少选择一个查询条件");
@@ -1071,9 +1081,9 @@ function queryByMutiCondition() {
     // generate a GetFeature request
     var featureRequest = new ol.format.WFS().writeGetFeature({
         srsName: 'EPSG:4326',
-        featureNS: 'http://www.vge.org',
-        featurePrefix: 'jiashanFish',
-        featureTypes: ['fish'],
+        featureNS: 'http://www.vge.org/webgis',
+        featurePrefix: 'WebGIS',
+        featureTypes: ['nanhu'],
         outputFormat: 'application/json',
         filter: fc
     });
@@ -1087,11 +1097,11 @@ function getFeatureByAttribute() {
     var name =$("#nameInput").val()+'*';
     var featureRequest = new ol.format.WFS().writeGetFeature({
         srsName: 'EPSG:4326',
-        featureNS: 'http://www.vge.org',
-        featurePrefix: 'jiashanFish',
-        featureTypes: ['fish'],
+        featureNS: 'http://www.vge.org/webgis',
+        featurePrefix: 'WebGIS',
+        featureTypes: ['nanhu'],
         outputFormat: 'application/json',
-        filter: ol.format.filter.like('ssrmc', name)//修改
+        filter: ol.format.filter.like('name', name)//修改
     });
     console.log(featureRequest);
     action(featureRequest);
@@ -1099,13 +1109,13 @@ function getFeatureByAttribute() {
 function getFeatureByID(id) {
     var featureRequest = new ol.format.WFS().writeGetFeature({
         srsName: 'EPSG:4326',
-        featureNS: 'http://www.vge.org',
-        featurePrefix: 'jiashanFish',
-        featureTypes: ['fish'],
+        featureNS: 'http://www.vge.org/webgis',
+        featurePrefix: 'WebGIS',
+        featureTypes: ['nanhu'],
         outputFormat: 'application/json',
         filter: ol.format.filter.equalTo('gid', id)
     });
-    fetch(IPADDR + '/geoserver/jiashanFish/wfs', {
+    fetch(IPADDR + '/geoserver/WebGIS/wfs', {
         method: 'POST',
         body: new XMLSerializer().serializeToString(featureRequest)
     }).then(function (response) {
@@ -1134,18 +1144,18 @@ function queryBYArea() {
     var f = ol.format.filter;
     var featureRequest = new ol.format.WFS().writeGetFeature({
         srsName: 'EPSG:4326',
-        featureNS: 'http://www.vge.org',
-        featurePrefix: 'jiashanFish',
-        featureTypes: ['fish'],
+        featureNS: 'http://www.vge.org/webgis',
+        featurePrefix: 'WebGIS',
+        featureTypes: ['nanhu'],
         outputFormat: 'application/json',
-        filter: ol.format.filter.between("yzmj", minVal, maxVal)
+        filter: ol.format.filter.between("area", minVal, maxVal)
     });
     console.log(featureRequest);
     action(featureRequest);
 }
 var debugFeature;
 function action(featureRequest) {
-    fetch(IPADDR + '/geoserver/jiashanFish/wfs', {
+    fetch(IPADDR + '/geoserver/WebGIS/wfs', {
         method: 'POST',
         body: new XMLSerializer().serializeToString(featureRequest)
     }).then(function (response) {
@@ -1181,31 +1191,32 @@ function addNewFish(gid, area) {
     $("#propertyTable").html("");
 
     var tableHTML = '<tr><td><label for=\"nameInput\">编号</label></td><td><input type=\"text\" class=\"form-control\" id=\"newFeatureID\" placeholder=\"\" disabled="true"　readOnly="true" value="' + gid + '"></td></tr>';
-    tableHTML += ('<tr><td><label for=\"nameInput\">养殖户姓名</label></td><td><input type=\"text\" class=\"form-control\" id=\"addNameInput\" placeholder=\"\"></td></tr>');
-    tableHTML += ('<tr><td><label for=\"nameInput\">养殖面积</label></td><td><input type=\"text\" class=\"form-control\" id=\"addAreaInput\" placeholder=\"\"disabled="true"　readOnly="true" value="' + area + '"></td></tr>');
-    tableHTML += ('<tr><td><label for=\"nameInput\">养殖品种</label></td><td><input type=\"text\" class=\"form-control\" id=\"addPinzhongInput\" placeholder=\"\"></td></tr>');
-    tableHTML += ('<tr><td><label for=\"nameInput\">类型划分</label></td><td><select class=\"form-control\" id=\"addTypeInput\"><option value="围养">围养</option><option value="外荡">外荡</option><option value="鱼塘">鱼塘</option><option value="未归类">未归类</option></select></td></tr>');
+    tableHTML += ('<tr><td><label for=\"nameInput\">名称</label></td><td><input type=\"text\" class=\"form-control\" id=\"addNameInput\" placeholder=\"\"></td></tr>');
+    tableHTML += ('<tr><td><label for=\"nameInput\">面积</label></td><td><input type=\"text\" class=\"form-control\" id=\"addAreaInput\" placeholder=\"\"disabled="true"　readOnly="true" value="' + area + '"></td></tr>');
+    tableHTML += ('<tr><td><label for=\"nameInput\">地址</label></td><td><input type=\"text\" class=\"form-control\" id=\"addPinzhongInput\" placeholder=\"\"></td></tr>');
+    // tableHTML += ('<tr><td><label for=\"nameInput\">类型</label></td><td><select class=\"form-control\" id=\"addTypeInput\"><option value="违建">违建</option><option value="未归类">未归类</option></select></td></tr>');
+    tableHTML += ('<tr><td><label for=\"nameInput\">描述</label></td><td><input type=\"text\" class=\"form-control\" id=\"addTypeInput\" placeholder=\"\"></td></tr>');
     tableHTML += ('<tr><td colspan="2"><button id="updateFishBt" type="submit" class="btn btn-primary" style="float:right;width:90px;margin-right:10px" onclick="update()">确定</button><button id="quxiao" type="submit" class="btn btn-danger" style="float:left;width:90px;margin-left:10px" onclick="quxiao()">取消</button></td></tr>');
     $("#propertyTable").html(tableHTML);
-    
+
 }
 function update() {
-    var type=$("#addTypeInput option:selected").val();
+    var description=$("#addTypeInput").val();
     var gid = $("#newFeatureID").val()
     var name = $("#addNameInput").val();
     var area = $("#addAreaInput").val();
-    var pinzhong = $("#addPinzhongInput").val();
+    var address = $("#addPinzhongInput").val();
     //var type = $("#addTypeInput").val();
     if(name==""){
-        toast("所属人不能为空",5000);
+        toast("名称不能为空",5000);
         return;
     }
-    if(pinzhong==""){
-        toast("养殖品种不能为空",5000);
+    if(address==""){
+        toast("地址不能为空",5000);
         return;
     }
-    if(type==""){
-        toast("类型划分不能为空",5000);
+    if(description==""){
+        toast("描述不能为空",5000);
         return;
     }
     var mdata = {
@@ -1213,8 +1224,8 @@ function update() {
             "gid": gid,
             "name": name,
             "area": area,
-            "pinzhong": pinzhong,
-            "type": type
+            "address": address,
+            "description": description
         })
     }
     $.ajax({
@@ -1230,7 +1241,7 @@ function update() {
             var mapHeight = mapDiv.height();
             map.setSize([mapWidth, mapHeight]);
 
-            layers[2].getSource().updateParams({"time": Date.now()});
+            layers[1].getSource().updateParams({"time": Date.now()});
             toast("新建图形成功", 1000);
 
         },
@@ -1260,11 +1271,11 @@ function editTransaction1(mode, f, formatGML) {
     }
     var payload = xs.serializeToString(node);
     console.log("payload is:" + payload);
-    $.ajax(IPADDR + '/geoserver/jiashanFish/wfs', {
+    $.ajax(IPADDR + '/geoserver/WebGIS/wfs', {
         type: 'POST',
         dataType: 'xml',
         //typename: 'fish',
-        typename: 'fish',
+        typename: 'nanhu',
         processData: false,
         contentType: 'text/xml',
         data: payload
@@ -1292,13 +1303,13 @@ function editTransaction1(mode, f, formatGML) {
 function getFeatureByID1(id) {
     var featureRequest = new ol.format.WFS().writeGetFeature({
         srsName: 'EPSG:4326',
-        featureNS: 'http://www.vge.org',
-        featurePrefix: 'jiashanFish',
-        featureTypes: ['fish'],
+        featureNS: 'http://www.vge.org/webgis',
+        featurePrefix: 'WebGIS',
+        featureTypes: ['nanhu'],
         outputFormat: 'application/json',
         filter: ol.format.filter.equalTo('gid', id)
     });
-    fetch(IPADDR + '/geoserver/jiashanFish/wfs', {
+    fetch(IPADDR + '/geoserver/WebGIS/wfs', {
         method: 'POST',
         body: new XMLSerializer().serializeToString(featureRequest)
     }).then(function (response) {
@@ -1339,7 +1350,7 @@ function quxiao(){
              console.log(data)
              if(data=="success"){
                  toast("取消新建图形成功", 1000);
-                 layers[2].getSource().updateParams({"time": Date.now()});
+                 layers[1].getSource().updateParams({"time": Date.now()});
                  clientVectorSource.clear();
              }
          }
@@ -1361,19 +1372,24 @@ function refreshDable(data) {
         //clear table
         $("#propertyTable").html("");
         //fill table
-        var tableHTML = '<tr><th>序号</th><th>所属人</th><th>面积</th><th>品种</th><th>类型</th></tr>';
+        var tableHTML = '<tr><th>序号</th><th>名称</th><th>面积</th><th>地址</th><th>描述</th><th>照片</th></tr>';
 
         for (i = 0; i < data.features.length; i++) {
             var property = data.features[i].properties;
-            var name = property.ssrmc;
+            var name = property.name;
             var id = data.features[i].id;
-            var mianji = property.yzmj;
-            var pinzhong = property.yzpz;
-            var leixing = property.lxhf;
-            var itemHTML = '<tr id =\'' + id + '\' onclick=\"jump2Map(\'' + id + '\')\">'
+            var area = property.area;
+            var address = property.address;
+            var description = property.description;
+            var imageurl = property.imageurl;
+            var itemHTML = '<tr id =\'' + id + '\' style =\"overflow: auto\" onclick=\"jump2Map(\'' + id + '\')\">'
             itemHTML += ("<td>" + (i + 1) + "</td>");
-            itemHTML += ("<td>" + name + "</td>" + "<td>" + mianji + "</td>" + "<td>" + pinzhong + "</td>" + "<td>" + leixing + "</td></tr>");
+            itemHTML += ("<td>" + name + "</td>" + "<td>" + area + "</td>" + "<td>" + address + "</td>" + "<td>" + description + "</td>"+ "<td><img src='./static/images/upload/" + imageurl + "'></td></tr>");
             tableHTML += itemHTML;
+
+             console.log($('#tbimgurl').text());
+
+
         }
         $("#propertyTable").html(tableHTML);
     } else {
@@ -1413,7 +1429,8 @@ function jump2Map(id) {
         feature.setStyle(activateStyle);
         //feature.setStyle(styles);
         //
-    }
+    };
+
 }
 function getExt(ext) {
     var modifiedExt;
@@ -1445,11 +1462,14 @@ function jump2Table(id, isSelected) {
         clickedTR = $("#" + trID);
         clickedTR.css("background-color", "#FDD7BD");
         checkedTableTR = clickedTR;
-
-        $("#propertyArea").scrollTop(0);
-        var pos = clickedTR.position().top - 100;
-        $("#propertyArea").scrollTop(pos);
-        console.log(trID + "pos is:" + pos);
+        $("#propertyArea").css("overflow","hidden") ;
+        $("#pbody").css("height","500px") ;
+        $("#pbody").css("overflow","scroll") ;
+        // $("#pArea").css("width",$("#propertyTable").width()) ;
+        // $("#propertyArea").scrollTop(0);
+        // var pos = clickedTR.position().top - 100;
+        // $("#propertyArea").scrollTop(pos);
+        // console.log(trID + "pos is:" + pos);
     }
     //ScroolTO
 
@@ -1465,10 +1485,10 @@ function hideModal() {
     $(".modal-backdrop").hide();
     $(".bs-example-modal-sm").modal('hide');
 }
-
+//统计违建面积
 function statciByCounty() {
     checkStatusin("check14");
-    showModal("统计", "正在按县域统计...");
+    showModal("统计", "正在统计...");
     for(i=0;i<10;i++){
             $("#"+i).hide();
         }
@@ -1494,16 +1514,24 @@ function statciByCounty() {
     hideModal()
     */
 }
+//统计违建数量
 function statciByTown() {
-    currentType = queryType.statistic;
+    // currentType = queryType.statistic;
+    // checkStatusin("check15");
+    // map.addLayer(xiangzhenVec);
+    // showModal("统计", "正在统计...");
+    // for(i=0;i<10;i++){
+    //         $("#"+i).show();
+    //     }
+    //     $("#qxyytjContainer").remove();
+    // getAreaByName("test");
     checkStatusin("check15");
-    map.addLayer(xiangzhenVec);
-    showModal("统计", "正在按乡镇域统计...");
+    showModal("统计", "正在统计...");
     for(i=0;i<10;i++){
-            $("#"+i).show();
+            $("#"+i).hide();
         }
-        $("#qxyytjContainer").remove();
-    getAreaByName("test");
+    $("#qxyytj").remove();
+    getCount();
 
 }
 function getCookie(name)
