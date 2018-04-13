@@ -14,6 +14,10 @@ def gate():
 @authorityBp.route('/mobile',methods=['GET','POST'])
 def index():
     return render_template('mobilemap.html',title='')
+
+@authorityBp.route('/nanhu23d',methods=['GET','POST'])
+def nanhu23d():
+    return render_template('nanhu23d.html',title='')
         
 
 @authorityBp.route('/login',methods=['GET','POST'])
