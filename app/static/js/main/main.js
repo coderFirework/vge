@@ -17,6 +17,7 @@ var multiQuery = $("#multiQuery");
 var currentQueryConditionItem = $("#currentQueryCondition");
 var createNewItem = $("#createNewItem");
 var modifyItem = $("#modifyItem");
+var nanhu23d = $("#nanhu");
 
 var static_county = $("#statistic_county")
 var static_town = $("#statistic_town")
@@ -92,7 +93,7 @@ var clientVectorSource;
 ///////////////////////////////////////////////////////
 function click2Query(type) {
     //map.removeLayer(layerWFS);
-    //map.addLayer(layers[1]);
+    //map.addLayer(layers[2]);
 
     currentType = type.data.type;
     console.log(type.data.type);
@@ -120,7 +121,8 @@ function click2Query(type) {
 var map = null;
 var layers;
 var overlay;
-var center = [120.8106659916, 30.7506028097];
+//var center = [120.8106659916, 30.7506028097];
+var center = [120.786183145,30.6725723478];
 var container = document.getElementById('popup');
 var content = document.getElementById('popup-content');
 var closer = document.getElementById('popup-closer');
@@ -189,13 +191,47 @@ function initialMape() {
     //     })
     // });
     // layers = [tian_di_tu_satellite_layer, boundaryLayer, fishLayer, clientVectorLayer];
-    layers = [tian_di_tu_satellite_layer, fishLayer, clientVectorLayer];
+    var ex2=[120.781506726,30.6688199951,120.790859564,30.6763247004];
+    var yswjwmsSource = new ol.source.TileWMS({
+        url: 'http://119.23.128.14:8080' + '/geoserver/WebGIS/wms',
+        params: {'LAYERS': 'yswj'}
+    });
+    var ywsjweijianLayer = new ol.layer.Tile({
+    title: "yswj",
+    source: yswjwmsSource
+    });
+
+    var bdcwmsSource = new ol.source.TileWMS({
+        url: 'http://119.23.128.14:8080' + '/geoserver/WebGIS/wms',
+        params: {'LAYERS': 'bdc'}
+    });
+    var bdcweijianLayer = new ol.layer.Tile({
+    title: "bdc",
+    source: bdcwmsSource
+    });
+
+    var yuxints=new ol.source.XYZ({
+        //url: '../static/tilemaps/{z}/{x}/{y}.png',
+        url: 'http://publicstore.oss-cn-beijing.aliyuncs.com/tiles/nanhu/{z}/{x}/{y}.png',
+        tilePixelRatio: 1, // THIS IS IMPORTANT
+        //minZoom: mapMinZoom,
+        //maxZoom: mapMaxZoom
+        minZoom: 0,
+        maxZoom: 20
+      })
+    var yuxinTMS = new ol.layer.Tile({
+      extent: ex2 ,
+      source: yuxints}
+    );
+
+    //layers = [tian_di_tu_satellite_layer, fishLayer, clientVectorLayer];
+    layers = [tian_di_tu_satellite_layer,yuxinTMS,fishLayer,bdcweijianLayer,ywsjweijianLayer, clientVectorLayer];
      var views = new ol.View({
         projection: 'EPSG:4326',
         center: center,
-        zoom: 12,
+        zoom: 16,
         minZoom:11,
-        maxZoom:18
+        maxZoom:21
     });
 
     map = new ol.Map({
@@ -362,6 +398,11 @@ function LayerControllor(action) {
         //queryVectorSource.clear();
         //map.removeLayer(clientVectorLayer);
         //map.removeLayer(layerAddWFS);
+    }else if(action == nanhu23d){
+        checkStatus("check5");
+        window.open("./nanhu23d");
+        //window.open('http://119.23.128.14:8088/static/web/nanhudemo/sidebyside.html');
+        //alert("hi");
     } else {
         checkStatus("check4");
         map.removeInteraction(draw);
@@ -482,7 +523,7 @@ function editTransaction(mode, f, formatGML) {
         //刷新WMS
         console.log(data);
         clientVectorSource.clear();
-        layers[1].getSource().updateParams({"time": Date.now()});
+        layers[2].getSource().updateParams({"time": Date.now()});
         if (mode == "delete") {
             toast("删除成功", 2000);
         } else if (mode = "update") {
@@ -736,7 +777,7 @@ function addCreateLayer() {
              addNewFish(gid, area);
             
             //sourceAddWFS.clear();
-            layers[1].getSource().updateParams({"time": Date.now()});
+            layers[2].getSource().updateParams({"time": Date.now()});
             //hideModal();
 
         },
@@ -970,6 +1011,9 @@ $(document).ready(new function () {
         mainMenuClick(modifyItem);
         currentType = queryType.modify;
         addEditLayer();
+    })
+    nanhu23d.bind("click",function(){
+        mainMenuClick(nanhu23d);
     })
     currentQueryConditionItem.bind("click", function () {
         mainMenuClick(currentQueryConditionItem);
@@ -1241,7 +1285,7 @@ function update() {
             var mapHeight = mapDiv.height();
             map.setSize([mapWidth, mapHeight]);
 
-            layers[1].getSource().updateParams({"time": Date.now()});
+            layers[2].getSource().updateParams({"time": Date.now()});
             toast("新建图形成功", 1000);
 
         },
@@ -1350,7 +1394,7 @@ function quxiao(){
              console.log(data)
              if(data=="success"){
                  toast("取消新建图形成功", 1000);
-                 layers[1].getSource().updateParams({"time": Date.now()});
+                 layers[2].getSource().updateParams({"time": Date.now()});
                  clientVectorSource.clear();
              }
          }
