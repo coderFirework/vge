@@ -48,7 +48,7 @@ def getID():
 
 def getPath():
     root=os.getcwd()
-    imagePath=os.path.join(root,'app\static\images\upload')
+    imagePath=os.path.join(root,'app/static/images/upload')
     t=time.time()
     imagename=str(int(t))+'.jpg'
     fullpath=os.path.join(imagePath,imagename)
@@ -78,7 +78,7 @@ def createfeature():
     try:
         geoData="ST_GeomFromText('"+geo+"')"
         sql = "insert into nanhu (name,address,description,area,geom,imageurl) values ('%s','%s','%s',%.2f,%s,'%s')"%(name,address,description,farea,geoData,imageurl)
-        print sql
+        #print sql
         cur.execute(sql)
         connect.commit()
         cur.close()
@@ -88,8 +88,8 @@ def createfeature():
         cur.close()
         connect.close()
         a=1
-        print e.message
-        return '{"a":"%s"}' % a
+        #print e.message
+        return '{"a":"%s"}' % e
 
     return "ok"
 
